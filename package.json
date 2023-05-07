@@ -1,5 +1,5 @@
 {
-  "name": "TocataBackend",
+  "name": "tocata-backend",
   "version": "0.0.1",
   "description": "Api TocataBackend",
   "main": "index.js",

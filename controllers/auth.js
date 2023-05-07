@@ -6,6 +6,7 @@ const user = require("../models/user");
 // Register Function
 function register(req, res) {
   const { firstname, lastname, email, nick, password } = req.body;
+
   // If email or password is missing...
   if (!email) res.status(400).send({ msg: "El email es obligatorio" });
   if (!password) res.status(400).send({ msg: "La contraseña es obligatoria" });
@@ -38,15 +39,19 @@ function register(req, res) {
 function login(req, res) {
   const { email, password } = req.body;
 
+  // If email or password is missing...
   if (!email) res.status(400).send({ msg: "El email es obligatorio" });
   if (!password) res.status(400).send({ msg: "La contraseña es obligatoria" });
 
+  // email ToLowerCase
   const emailLowerCase = email.toLowerCase();
 
+  //Find email
   User.findOne({ email: emailLowerCase }, (error, userStorage) => {
     if (error) {
       res.status(500).send({ msg: "Error del servidor" });
     } else {
+      // Compare encrypted password
       bcrypt.compare(password, userStorage.password, (bcryptError, check) => {
         if (bcryptError) {
           res.status(500).send({ msg: "Error del servidor" });
