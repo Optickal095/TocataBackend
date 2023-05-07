@@ -50,6 +50,8 @@ function login(req, res) {
   User.findOne({ email: emailLowerCase }, (error, userStorage) => {
     if (error) {
       res.status(500).send({ msg: "Error del servidor" });
+    } else if (!userStorage) {
+      res.status(400).send({ msg: "Usuario no encontrado" });
     } else {
       // Compare encrypted password
       bcrypt.compare(password, userStorage.password, (bcryptError, check) => {
