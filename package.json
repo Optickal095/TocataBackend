@@ -5,5 +5,11 @@
   "main": "index.js",
   "repository": "https://github.com/Optickal095/TocataBackend.git",
   "author": "Eduardo Hernandez Oyarzun",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "mongoose": "6.6.1"
+  }
 }
