@@ -1,0 +1,9 @@
+{
+  "name": "TocataBackend",
+  "version": "0.0.1",
+  "description": "Api TocataBackend",
+  "main": "index.js",
+  "repository": "https://github.com/Optickal095/TocataBackend.git",
+  "author": "Eduardo Hernandez Oyarzun",
+  "license": "MIT"
+}
