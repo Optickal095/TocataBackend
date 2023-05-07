@@ -65,6 +65,10 @@ function login(req, res) {
   });
 }
 
+function test() {
+  console.log(test);
+}
+
 module.exports = {
   register,
   login
