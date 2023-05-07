@@ -10,6 +10,9 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// Configure static folder
+app.use(express.static("uploads"));
+
 // Configure Header HTTP - CORS
 
 //  Configure Routing
