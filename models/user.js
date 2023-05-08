@@ -10,7 +10,7 @@ const UserSchema = mongoose.Schema({
   },
   password: String,
   role: String,
-  active: String,
+  active: Boolean,
   avatar: String
 });
 
