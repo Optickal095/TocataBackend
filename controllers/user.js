@@ -85,9 +85,22 @@ async function updateUser(req, res) {
   });
 }
 
+async function deleteUser(req, res) {
+  const { id } = req.params;
+
+  User.findByIdAndDelete(id, (error) => {
+    if (error) {
+      res.status(400).send({ msg: "Error al eliminar el ususario" });
+    } else {
+      res.status(200).send({ msg: "Usuario eliminado" });
+    }
+  });
+}
+
 module.exports = {
   getMe,
   getUsers,
   createUser,
-  updateUser
+  updateUser,
+  deleteUser
 };

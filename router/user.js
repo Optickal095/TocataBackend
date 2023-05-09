@@ -14,5 +14,6 @@ api.patch(
   [md_auth.asureAuth, md_upload],
   UserController.updateUser
 );
+api.delete("/user/:id", [md_auth.asureAuth], UserController.deleteUser);
 
 module.exports = api;
