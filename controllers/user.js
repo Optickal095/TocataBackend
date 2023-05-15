@@ -85,16 +85,23 @@ async function updateUser(req, res) {
   });
 }
 
+// deleteUser Function
 async function deleteUser(req, res) {
-  const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-  User.findByIdAndDelete(id, (error) => {
-    if (error) {
-      res.status(400).send({ msg: "Error al eliminar el ususario" });
-    } else {
-      res.status(200).send({ msg: "Usuario eliminado" });
+    const result = await User.findByIdAndDelete(id).exec();
+
+    if (result === null) {
+      throw new Error("El usuario no existe o ya ha sido eliminado");
     }
-  });
+
+    res.status(200).send({ msg: "Usuario eliminado" });
+  } catch (error) {
+    res
+      .status(400)
+      .send({ msg: "Error al eliminar el usuario", error: error.message });
+  }
 }
 
 module.exports = {
@@ -102,5 +109,5 @@ module.exports = {
   getUsers,
   createUser,
   updateUser,
-  deleteUser
+  deleteUser,
 };
