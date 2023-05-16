@@ -29,10 +29,10 @@ async function getUsers(req, res) {
   res.status(200).send(response);
 }
 
-// createUser Function
 async function createUser(req, res) {
-  const { password } = req.body;
-  const user = new User({ ...req.body, active: false });
+  let { password, email } = req.body;
+  email = email.toLowerCase(); // Convertir el email a minúsculas
+  const user = new User({ ...req.body, email, active: false });
 
   // Crypting Password
   const salt = bcrypt.genSaltSync(10);
@@ -48,7 +48,7 @@ async function createUser(req, res) {
   // Save User
   user.save((error, userStorage) => {
     if (error) {
-      res.status(400).send({ msg: "Error al crear el ususario" });
+      res.status(400).send({ msg: "Error al crear el usuario" });
     } else {
       res.status(201).send(userStorage);
     }

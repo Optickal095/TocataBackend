@@ -50,7 +50,7 @@ async function getFollowingUsers(req, res) {
   try {
     const { user_id } = req.user;
     let page = parseInt(req.params.page);
-    const itemsPerPage = 1;
+    const itemsPerPage = 10;
 
     const options = {
       page,
@@ -87,8 +87,50 @@ async function getFollowingUsers(req, res) {
   }
 }
 
+async function getFollowedUsers(req, res) {
+  try {
+    const { user_id } = req.user;
+    let page = parseInt(req.params.page);
+    const itemsPerPage = 10;
+
+    const options = {
+      page,
+      limit: itemsPerPage,
+      populate: "followed",
+      sort: { createdAt: -1 }, // Ordenar por fecha de creación descendente
+    };
+
+    const total = await Follow.countDocuments({ user: user_id });
+
+    const totalPages = Math.ceil(total / itemsPerPage);
+
+    // Ajustar el número de página si es mayor al número total de páginas
+    if (page > totalPages) {
+      page = totalPages;
+    }
+
+    const result = await Follow.find({ followed: user_id })
+      .populate("user followed")
+      .skip((page - 1) * itemsPerPage)
+      .limit(itemsPerPage)
+      .exec();
+
+    if (result.length === 0) {
+      throw new Error("No te sigue ningún usuario");
+    }
+
+    res.status(200).send({ follows: result, total, currentPage: page });
+  } catch (error) {
+    res.status(400).send({
+      msg: "Error al obtener los usuarios que sigues",
+      error: error.message,
+    });
+  }
+}
+
 module.exports = {
   saveFollow,
   deleteFollow,
   getFollowingUsers,
+  getFollowedUsers,
 };
