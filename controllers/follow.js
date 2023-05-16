@@ -1,6 +1,5 @@
 //const path = require('path')
 //const fs = require('fs');
-//const mongoosePaginate = require('mongoose-pagination');
 const User = require("../models/user");
 const Follow = require("../models/follow");
 
@@ -47,7 +46,49 @@ async function deleteFollow(req, res) {
   }
 }
 
+async function getFollowingUsers(req, res) {
+  try {
+    const { user_id } = req.user;
+    let page = parseInt(req.params.page);
+    const itemsPerPage = 1;
+
+    const options = {
+      page,
+      limit: itemsPerPage,
+      populate: "followed",
+      sort: { createdAt: -1 }, // Ordenar por fecha de creación descendente
+    };
+
+    const total = await Follow.countDocuments({ user: user_id });
+
+    const totalPages = Math.ceil(total / itemsPerPage);
+
+    // Ajustar el número de página si es mayor al número total de páginas
+    if (page > totalPages) {
+      page = totalPages;
+    }
+
+    const result = await Follow.find({ user: user_id })
+      .populate("followed")
+      .skip((page - 1) * itemsPerPage)
+      .limit(itemsPerPage)
+      .exec();
+
+    if (result.length === 0) {
+      throw new Error("No sigues a ningún usuario");
+    }
+
+    res.status(200).send({ follows: result, total, currentPage: page });
+  } catch (error) {
+    res.status(400).send({
+      msg: "Error al obtener los usuarios que sigues",
+      error: error.message,
+    });
+  }
+}
+
 module.exports = {
   saveFollow,
   deleteFollow,
+  getFollowingUsers,
 };
