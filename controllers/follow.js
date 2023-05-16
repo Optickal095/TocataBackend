@@ -110,7 +110,7 @@ async function getFollowedUsers(req, res) {
     }
 
     const result = await Follow.find({ followed: user_id })
-      .populate("user followed")
+      .populate("user")
       .skip((page - 1) * itemsPerPage)
       .limit(itemsPerPage)
       .exec();
