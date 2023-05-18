@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
+const Follow = require("../models/follow");
 const image = require("../utils/image");
 
 // getMe Function
@@ -29,10 +30,32 @@ async function getUsers(req, res) {
   res.status(200).send(response);
 }
 
+//getUser Function
+async function getUser(req, res) {
+  const { id } = req.params;
+  const { user_id } = req.user;
+
+  User.findById(id, (error, user) => {
+    if (error) {
+      res.status(500).send({ msg: "Error en la petición" });
+    } else if (!user) {
+      res.status(404).send({ msg: "El usuario no existe" });
+    }
+    // Sigo a este usuario?
+    Follow.findOne({ user: user_id, followed: id }).exec((error, follow) => {
+      if (error) {
+        res.status(500).send({ msg: "Error al comprobar el seguimiento" });
+      }
+      res.status(200).send({ user, follow });
+    });
+  });
+}
+
 // createUser Function
 async function createUser(req, res) {
-  const { password } = req.body;
-  const user = new User({ ...req.body, active: false });
+  let { password, email } = req.body;
+  email = email.toLowerCase(); // Convertir el email a minúsculas
+  const user = new User({ ...req.body, email, active: false });
 
   // Crypting Password
   const salt = bcrypt.genSaltSync(10);
@@ -48,7 +71,7 @@ async function createUser(req, res) {
   // Save User
   user.save((error, userStorage) => {
     if (error) {
-      res.status(400).send({ msg: "Error al crear el ususario" });
+      res.status(400).send({ msg: "Error al crear el usuario" });
     } else {
       res.status(201).send(userStorage);
     }
@@ -85,22 +108,30 @@ async function updateUser(req, res) {
   });
 }
 
+// deleteUser Function
 async function deleteUser(req, res) {
-  const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-  User.findByIdAndDelete(id, (error) => {
-    if (error) {
-      res.status(400).send({ msg: "Error al eliminar el ususario" });
-    } else {
-      res.status(200).send({ msg: "Usuario eliminado" });
+    const result = await User.findByIdAndDelete(id).exec();
+
+    if (result === null) {
+      throw new Error("El usuario no existe o ya ha sido eliminado");
     }
-  });
+
+    res.status(200).send({ msg: "Usuario eliminado" });
+  } catch (error) {
+    res
+      .status(400)
+      .send({ msg: "Error al eliminar el usuario", error: error.message });
+  }
 }
 
 module.exports = {
   getMe,
   getUsers,
+  getUser,
   createUser,
   updateUser,
-  deleteUser
+  deleteUser,
 };

@@ -11,7 +11,7 @@ function createAccessToken(user) {
     token_type: "access",
     user_id: user._id,
     iat: Date.now(),
-    exp: expToken.getTime()
+    exp: expToken.getTime(),
   };
 
   return jwt.sign(payload, JWT_SECRET_KEY);
@@ -27,7 +27,7 @@ function createRefreshToken(user) {
     token_type: "refresh",
     user_id: user._id,
     iat: Date.now(),
-    exp: expToken.getTime()
+    exp: expToken.getTime(),
   };
 
   return jwt.sign(payload, JWT_SECRET_KEY);
@@ -41,5 +41,5 @@ function decoded(token) {
 module.exports = {
   createAccessToken,
   createRefreshToken,
-  decoded
+  decoded,
 };
