@@ -148,10 +148,32 @@ async function getMyFollows(req, res) {
   });
 }
 
+//isFollowing Function
+async function isFollowing(req, res) {
+  const { id } = req.params;
+  const { user_id } = req.user;
+
+  User.findById(id, (error, user) => {
+    if (error) {
+      res.status(500).send({ msg: "Error en la petición" });
+    } else if (!user) {
+      res.status(404).send({ msg: "El usuario no existe" });
+    }
+    // Sigo a este usuario?
+    Follow.findOne({ user: user_id, followed: id }).exec((error, follow) => {
+      if (error) {
+        res.status(500).send({ msg: "Error al comprobar el seguimiento" });
+      }
+      res.status(200).send({ user, follow });
+    });
+  });
+}
+
 module.exports = {
   saveFollow,
   deleteFollow,
   getFollowingUsers,
   getFollowedUsers,
   getMyFollows,
+  isFollowing,
 };

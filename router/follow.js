@@ -21,5 +21,10 @@ api.get(
   [md_auth.asureAuth],
   FollowController.getMyFollows
 );
+api.get(
+  "/user-following/:id",
+  [md_auth.asureAuth],
+  FollowController.isFollowing
+);
 
 module.exports = api;
