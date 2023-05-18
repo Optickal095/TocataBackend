@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
+const Follow = require("../models/follow");
 const image = require("../utils/image");
 
 // getMe Function
@@ -29,6 +30,22 @@ async function getUsers(req, res) {
   res.status(200).send(response);
 }
 
+//getUser Function
+async function getUser(req, res) {
+  const { id } = req.params;
+
+  User.findById(id, (error, user) => {
+    if (error) {
+      res.status(500).send({ msg: "Error en la petición" });
+    } else if (!user) {
+      res.status(404).send({ msg: "El usuario no existe" });
+    } else {
+      res.status(200).send({ user });
+    }
+  });
+}
+
+// createUser Function
 async function createUser(req, res) {
   let { password, email } = req.body;
   email = email.toLowerCase(); // Convertir el email a minúsculas
@@ -107,6 +124,7 @@ async function deleteUser(req, res) {
 module.exports = {
   getMe,
   getUsers,
+  getUser,
   createUser,
   updateUser,
   deleteUser,
