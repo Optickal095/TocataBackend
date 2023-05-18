@@ -51,6 +51,8 @@ async function getUser(req, res) {
   });
 }
 
+// TEST
+
 // createUser Function
 async function createUser(req, res) {
   let { password, email } = req.body;
