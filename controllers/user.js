@@ -21,7 +21,7 @@ async function getUsers(req, res) {
   const { active } = req.query;
   let response = null;
 
-  if (active == undefined) {
+  if (active === undefined) {
     response = await User.find();
   } else {
     response = await User.find({ active });
