@@ -1,12 +1,13 @@
-//const path = require('path')
-//const fs = require('fs');
 const User = require("../models/user");
 const Follow = require("../models/follow");
 
 async function saveFollow(req, res) {
   const params = req.body;
-
   const { user_id } = req.user;
+
+  if (user_id === params.followed) {
+    return res.status(400).send({ msg: "No puedes seguirte a ti mismo" });
+  }
 
   const follow = new Follow({
     user: user_id,
