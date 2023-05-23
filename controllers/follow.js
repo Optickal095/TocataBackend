@@ -159,14 +159,37 @@ async function isFollowing(req, res) {
     } else if (!user) {
       res.status(404).send({ msg: "El usuario no existe" });
     }
-    // Sigo a este usuario?
-    Follow.findOne({ user: user_id, followed: id }).exec((error, follow) => {
-      if (error) {
-        res.status(500).send({ msg: "Error al comprobar el seguimiento" });
-      }
-      res.status(200).send({ user, follow });
+    followThisUser(user_id, id).then((value) => {
+      return res.status(200).send({ user, value });
     });
   });
+}
+
+async function followThisUser(identity_user_id, user_id) {
+  var following = await Follow.findOne({
+    user: identity_user_id,
+    followed: user_id,
+  }).exec((error, follow) => {
+    if (error) {
+      return handleError(error);
+    }
+    return follow;
+  });
+
+  var followed = await Follow.findOne({
+    user: user_id,
+    followed: identity_user_id,
+  }).exec((error, follow) => {
+    if (error) {
+      return handleError(error);
+    }
+    return follow;
+  });
+
+  return {
+    following: following,
+    followed: followed,
+  };
 }
 
 module.exports = {
