@@ -160,7 +160,9 @@ async function isFollowing(req, res) {
       res.status(404).send({ msg: "El usuario no existe" });
     }
     followThisUser(user_id, id).then((value) => {
-      return res.status(200).send({ user, value });
+      return res
+        .status(200)
+        .send({ user, following: value.following, followed: value.followed });
     });
   });
 }
