@@ -27,4 +27,5 @@ api.get(
   FollowController.isFollowing
 );
 api.get("/counters/:id?", [md_auth.asureAuth], FollowController.getCounters);
+
 module.exports = api;

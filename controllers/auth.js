@@ -18,7 +18,7 @@ function register(req, res) {
     nick,
     email: email.toLowerCase(),
     role: "user",
-    active: false
+    active: false,
   });
 
   // Password encryption
@@ -64,7 +64,7 @@ function login(req, res) {
         } else {
           res.status(200).send({
             access: jwt.createAccessToken(userStorage),
-            refresh: jwt.createRefreshToken(userStorage)
+            refresh: jwt.createRefreshToken(userStorage),
           });
         }
       });
@@ -75,23 +75,39 @@ function login(req, res) {
 function refreshAccessToken(req, res) {
   const { token } = req.body;
 
-  if (!token) res.status(400).send({ msg: "Token requerido" });
+  if (!token) {
+    res.status(400).send({ msg: "Token requerido" });
+    return;
+  }
 
-  const { user_id } = jwt.decoded(token);
+  try {
+    const decodedToken = jwt.verify(token, "secret_key"); // Reemplaza 'secret_key' con tu clave secreta
 
-  User.findOne({ _id: user_id }, (error, userStorage) => {
-    if (error) {
-      res.status(500).send({ msg: "Error del servidor" });
-    } else {
-      res.status(200).send({
-        accessToken: jwt.createAccessToken(userStorage)
-      });
+    if (!decodedToken || !decodedToken.user_id) {
+      res.status(400).send({ msg: "Token inválido" });
+      return;
     }
-  });
+
+    const { user_id } = decodedToken;
+
+    User.findOne({ _id: user_id }, (error, userStorage) => {
+      if (error) {
+        res.status(500).send({ msg: "Error del servidor" });
+      } else {
+        res.status(200).send({
+          accessToken: jwt.sign({ user_id: userStorage._id }, "secret_key", {
+            expiresIn: "1h",
+          }), // Genera un nuevo token de acceso con una validez de 1 hora
+        });
+      }
+    });
+  } catch (error) {
+    res.status(400).send({ msg: "Token inválido" });
+  }
 }
 
 module.exports = {
   register,
   login,
-  refreshAccessToken
+  refreshAccessToken,
 };
