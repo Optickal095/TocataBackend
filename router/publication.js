@@ -11,5 +11,10 @@ api.post(
   [md_auth.asureAuth],
   PublicationController.savePublication
 );
+api.get(
+  "/publications/:page?",
+  [md_auth.asureAuth],
+  PublicationController.getPublications
+);
 
 module.exports = api;

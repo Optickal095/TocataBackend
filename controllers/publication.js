@@ -1,5 +1,7 @@
 const moment = require("moment");
 const Publication = require("../models/publication");
+const Follow = require("../models/follow");
+const publication = require("../models/publication");
 
 function savePublication(req, res) {
   const { text, file } = req.body;
@@ -28,6 +30,62 @@ function savePublication(req, res) {
   });
 }
 
+function getPublications(req, res) {
+  const { user_id } = req.user;
+  var page = 1;
+
+  if (req.params.page) {
+    page = req.params.page;
+  }
+
+  var itemsPerPage = 4;
+
+  Follow.find({ user: user_id })
+    .populate("followed")
+    .exec((error, follows) => {
+      if (error) {
+        res.status(500).send({ msg: "Error al devolver el seguimiento" });
+      }
+
+      var follows_clean = [];
+
+      follows.forEach((follow) => {
+        follows_clean.push(follow.followed);
+      });
+
+      Publication.find({ user: { $in: follows_clean } })
+        .sort("-created_at")
+        .populate("user")
+        .skip((page - 1) * itemsPerPage)
+        .limit(itemsPerPage)
+        .exec((error, publications) => {
+          if (error) {
+            res.status(500).send({ msg: "Error al devolver publicaciones" });
+          } else if (!publications || publications.length === 0) {
+            res.status(404).send({ msg: "No hay publicaciones" });
+          } else {
+            Publication.countDocuments({ user: { $in: follows_clean } }).exec(
+              (error, total) => {
+                if (error) {
+                  res
+                    .status(500)
+                    .send({ msg: "Error al devolver publicaciones" });
+                } else {
+                  res.status(200).send({
+                    total_items: total,
+                    pages: Math.ceil(total / itemsPerPage),
+                    page: page,
+                    publications,
+                  });
+                }
+              }
+            );
+          }
+        });
+    });
+}
+
 module.exports = {
   savePublication,
+  getPublications,
 };
