@@ -1,12 +1,11 @@
 const moment = require("moment");
 const Publication = require("../models/publication");
 const Follow = require("../models/follow");
-const publication = require("../models/publication");
 
 function savePublication(req, res) {
   const { text, file } = req.body;
   const { user_id } = req.user;
-  const created_at = moment().unix();
+  const created_at = new Date(); // Fecha y hora actual
 
   if (!text) {
     return res.status(400).send({ msg: "Debes enviar un texto!" });
@@ -95,7 +94,22 @@ function paginateArray(array, page, itemsPerPage) {
   return array.slice(startIndex, endIndex);
 }
 
+function getPublication(req, res) {
+  const publicationId = req.params.id;
+
+  Publication.findById(publicationId, (error, publication) => {
+    if (error) {
+      res.status(500).send({ msg: "Error en la petición" });
+    } else if (!publication) {
+      res.status(404).send({ msg: "No existe la publicación" });
+    } else {
+      res.status(200).send({ publication });
+    }
+  });
+}
+
 module.exports = {
   savePublication,
   getPublications,
+  getPublication,
 };

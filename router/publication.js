@@ -16,5 +16,10 @@ api.get(
   [md_auth.asureAuth],
   PublicationController.getPublications
 );
+api.get(
+  "/publication/:id",
+  [md_auth.asureAuth],
+  PublicationController.getPublication
+);
 
 module.exports = api;
