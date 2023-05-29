@@ -31,5 +31,10 @@ api.delete(
   [md_auth.asureAuth],
   PublicationController.deletePublication
 );
+api.get(
+  "/publicationscounter",
+  [md_auth.asureAuth],
+  PublicationController.getPublicationsCounter
+);
 
 module.exports = api;

@@ -5,10 +5,11 @@ const image = require("../utils/image");
 
 function savePublication(req, res) {
   const { user_id } = req.user;
-  let { text, file } = req.body;
+  const { text } = req.body;
+  let file = null;
 
   // Image
-  if (req.files && req.files.file) {
+  if (req.files && req.files.file && text) {
     const imagePath = image.getFilePath(req.files.file);
     file = imagePath;
   }
@@ -20,7 +21,9 @@ function savePublication(req, res) {
     user: user_id,
   });
 
-  console.log({ publication });
+  if (!text) {
+    return res.status(400).send({ msg: "Debes enviar texto!" });
+  }
 
   publication.save((error, publicationStored) => {
     if (error) {
@@ -169,10 +172,32 @@ function deletePublication(req, res) {
   );
 }
 
+async function getPublicationsCounter(req, res) {
+  let { user_id } = req.user;
+  if (req.params.id) {
+    user_id = req.params.id;
+  }
+
+  try {
+    const publications = await Publication.countDocuments({
+      user: user_id,
+    }).exec();
+
+    const counters = { publications };
+
+    return res.status(200).send(counters);
+  } catch (error) {
+    return res
+      .status(400)
+      .send({ msg: "Error al obtener los contadores", error: error.message });
+  }
+}
+
 module.exports = {
   savePublication,
   getPublications,
   getPublication,
   getMyPublications,
   deletePublication,
+  getPublicationsCounter,
 };

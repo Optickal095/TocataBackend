@@ -195,17 +195,6 @@ async function followThisUser(identity_user_id, user_id) {
   };
 }
 
-function getCounters(req, res) {
-  let { user_id } = req.user;
-  if (req.params.id) {
-    user_id = req.params.id;
-  }
-
-  getCountFollow(user_id).then((value) => {
-    return res.status(200).send(value);
-  });
-}
-
 async function getCounters(req, res) {
   let { user_id } = req.user;
   if (req.params.id) {
