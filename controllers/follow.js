@@ -132,7 +132,7 @@ async function getFollowedUsers(req, res) {
 async function getMyFollows(req, res) {
   const { user_id } = req.user;
 
-  var find = Follow.find({ followed: user_id });
+  let find = Follow.find({ followed: user_id });
 
   if (req.params.followed) {
     find = Follow.find({ followed: user_id });
@@ -169,7 +169,7 @@ async function isFollowing(req, res) {
 }
 
 async function followThisUser(identity_user_id, user_id) {
-  var following = await Follow.findOne({
+  let following = await Follow.findOne({
     user: identity_user_id,
     followed: user_id,
   }).exec((error, follow) => {
@@ -179,7 +179,7 @@ async function followThisUser(identity_user_id, user_id) {
     return follow;
   });
 
-  var followed = await Follow.findOne({
+  let followed = await Follow.findOne({
     user: user_id,
     followed: identity_user_id,
   }).exec((error, follow) => {
@@ -196,7 +196,7 @@ async function followThisUser(identity_user_id, user_id) {
 }
 
 function getCounters(req, res) {
-  var { user_id } = req.user;
+  let { user_id } = req.user;
   if (req.params.id) {
     user_id = req.params.id;
   }

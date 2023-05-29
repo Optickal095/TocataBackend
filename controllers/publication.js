@@ -1,6 +1,7 @@
 const moment = require("moment");
 const Publication = require("../models/publication");
 const Follow = require("../models/follow");
+const image = require("../utils/image");
 
 function savePublication(req, res) {
   const { text, file } = req.body;
@@ -31,13 +32,13 @@ function savePublication(req, res) {
 
 function getPublications(req, res) {
   const { user_id } = req.user;
-  var page = 1;
+  let page = 1;
 
   if (req.params.page) {
     page = req.params.page;
   }
 
-  var itemsPerPage = 20;
+  let itemsPerPage = 20;
 
   Follow.find({ user: user_id })
     .populate("followed")
@@ -46,7 +47,7 @@ function getPublications(req, res) {
         res.status(500).send({ msg: "Error al devolver el seguimiento" });
       }
 
-      var follows_clean = [];
+      let follows_clean = [];
 
       follows.forEach((follow) => {
         follows_clean.push(follow.followed);
