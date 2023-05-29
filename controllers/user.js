@@ -1,6 +1,5 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
-const Follow = require("../models/follow");
 const image = require("../utils/image");
 
 // getMe Function

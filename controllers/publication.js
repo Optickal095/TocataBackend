@@ -4,29 +4,31 @@ const Follow = require("../models/follow");
 const image = require("../utils/image");
 
 function savePublication(req, res) {
-  const { text, file } = req.body;
   const { user_id } = req.user;
-  const created_at = new Date(); // Fecha y hora actual
+  let { text, file } = req.body;
 
-  if (!text) {
-    return res.status(400).send({ msg: "Debes enviar un texto!" });
+  // Image
+  if (req.files && req.files.file) {
+    const imagePath = image.getFilePath(req.files.file);
+    file = imagePath;
   }
 
   const publication = new Publication({
     text,
-    file: null,
-    created_at,
+    file,
+    created_at: new Date(),
     user: user_id,
   });
 
+  console.log({ publication });
+
   publication.save((error, publicationStored) => {
     if (error) {
-      return res.status(400).send({ msg: "Error al guardar la publicación" });
+      console.error(error);
+      res.status(400).send({ msg: "Error al crear publicación" });
+    } else {
+      res.status(201).send(publicationStored);
     }
-    if (!publicationStored) {
-      return res.status(404).send({ msg: "Publicación no guardada" });
-    }
-    return res.status(200).send(publicationStored);
   });
 }
 
@@ -115,11 +117,11 @@ function getMyPublications(req, res) {
 
   // Configuración predeterminada para paginación
   page = parseInt(page) || 1;
-  perPage = parseInt(perPage) || 10;
+  perPage = parseInt(perPage) || 30;
 
   Publication.find({ user: user_id })
     .sort("-created_at")
-    .populate("user")
+    .select("-user") // Excluir el campo 'user'
     .skip((page - 1) * perPage)
     .limit(perPage)
     .exec((error, publications) => {

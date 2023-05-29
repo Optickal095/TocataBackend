@@ -8,7 +8,7 @@ const api = express.Router();
 
 api.post(
   "/publication",
-  [md_auth.asureAuth],
+  [md_auth.asureAuth, md_upload],
   PublicationController.savePublication
 );
 api.get(
@@ -22,7 +22,7 @@ api.get(
   PublicationController.getPublication
 );
 api.get(
-  "/mypublications",
+  "/mypublications/:page?",
   [md_auth.asureAuth],
   PublicationController.getMyPublications
 );
