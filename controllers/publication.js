@@ -38,7 +38,7 @@ function getPublications(req, res) {
     page = req.params.page;
   }
 
-  var itemsPerPage = 4;
+  var itemsPerPage = 20;
 
   Follow.find({ user: user_id })
     .populate("followed")
@@ -54,35 +54,45 @@ function getPublications(req, res) {
       });
 
       Publication.find({ user: { $in: follows_clean } })
-        .sort("-created_at")
         .populate("user")
-        .skip((page - 1) * itemsPerPage)
-        .limit(itemsPerPage)
         .exec((error, publications) => {
           if (error) {
             res.status(500).send({ msg: "Error al devolver publicaciones" });
           } else if (!publications || publications.length === 0) {
             res.status(404).send({ msg: "No hay publicaciones" });
           } else {
-            Publication.countDocuments({ user: { $in: follows_clean } }).exec(
-              (error, total) => {
-                if (error) {
-                  res
-                    .status(500)
-                    .send({ msg: "Error al devolver publicaciones" });
-                } else {
-                  res.status(200).send({
-                    total_items: total,
-                    pages: Math.ceil(total / itemsPerPage),
-                    page: page,
-                    publications,
-                  });
-                }
-              }
-            );
+            const randomizedPublications = shuffleArray(publications); // Orden aleatorio de las publicaciones
+            const paginatedPublications = paginateArray(
+              randomizedPublications,
+              page,
+              itemsPerPage
+            ); // Paginación de las publicaciones
+
+            res.status(200).send({
+              total_items: publications.length,
+              pages: Math.ceil(publications.length / itemsPerPage),
+              page: page,
+              publications: paginatedPublications,
+            });
           }
         });
     });
+}
+
+// Función para ordenar aleatoriamente un array (algoritmo de Fisher-Yates)
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+// Función para paginar un array
+function paginateArray(array, page, itemsPerPage) {
+  const startIndex = (page - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  return array.slice(startIndex, endIndex);
 }
 
 module.exports = {
