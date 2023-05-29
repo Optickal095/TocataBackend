@@ -108,8 +108,68 @@ function getPublication(req, res) {
   });
 }
 
+function getMyPublications(req, res) {
+  const { user_id } = req.user;
+  let { page, perPage } = req.query;
+
+  // Configuración predeterminada para paginación
+  page = parseInt(page) || 1;
+  perPage = parseInt(perPage) || 10;
+
+  Publication.find({ user: user_id })
+    .sort("-created_at")
+    .populate("user")
+    .skip((page - 1) * perPage)
+    .limit(perPage)
+    .exec((error, publications) => {
+      if (error) {
+        res.status(500).send({ msg: "Error al obtener publicaciones" });
+      } else if (!publications || publications.length === 0) {
+        res.status(404).send({ msg: "No se encontraron publicaciones" });
+      } else {
+        Publication.countDocuments({ user: user_id }).exec(
+          (error, totalCount) => {
+            if (error) {
+              res
+                .status(500)
+                .send({ msg: "Error al contar las publicaciones" });
+            } else {
+              const totalPages = Math.ceil(totalCount / perPage);
+              res.status(200).send({
+                totalItems: totalCount,
+                totalPages,
+                currentPage: page,
+                publications,
+              });
+            }
+          }
+        );
+      }
+    });
+}
+
+function deletePublication(req, res) {
+  const { user_id } = req.user;
+  const publicationId = req.params.id;
+
+  Publication.deleteOne(
+    { user: user_id, _id: publicationId },
+    (error, publicationRemoved) => {
+      if (error) {
+        res.status(500).send({ msg: "Error en la petición" });
+      } else if (!publicationRemoved) {
+        res.status(404).send({ msg: "No existe la publicación" });
+      } else {
+        res.status(200).send({ publicationRemoved });
+      }
+    }
+  );
+}
+
 module.exports = {
   savePublication,
   getPublications,
   getPublication,
+  getMyPublications,
+  deletePublication,
 };

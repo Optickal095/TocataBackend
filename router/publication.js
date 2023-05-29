@@ -21,5 +21,15 @@ api.get(
   [md_auth.asureAuth],
   PublicationController.getPublication
 );
+api.get(
+  "/mypublications",
+  [md_auth.asureAuth],
+  PublicationController.getMyPublications
+);
+api.delete(
+  "/publication/:id",
+  [md_auth.asureAuth],
+  PublicationController.deletePublication
+);
 
 module.exports = api;
