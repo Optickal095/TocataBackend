@@ -27,11 +27,15 @@ function register(req, res) {
   user.password = hashPassword;
 
   // Save into DB
-  user.save((error, userStorage) => {
-    if (error) {
-      res.status(400).send({ msg: "Error al crear el usuario" });
+  user.save((err, userStored) => {
+    if (err) {
+      // Handle the error and send an appropriate response
+      res
+        .status(500)
+        .send({ msg: "Error al guardar el usuario en la base de datos" });
     } else {
-      res.status(200).send(userStorage);
+      // Send a success response
+      res.status(200).send({ user: userStored });
     }
   });
 }
