@@ -43,21 +43,21 @@ function register(req, res) {
 function login(req, res) {
   const { email, password } = req.body;
 
-  // If email or password is missing...
+  // Si el email o la contraseña están faltando...
   if (!email) res.status(400).send({ msg: "El email es obligatorio" });
   if (!password) res.status(400).send({ msg: "La contraseña es obligatoria" });
 
-  // email ToLowerCase
+  // email en minúsculas
   const emailLowerCase = email.toLowerCase();
 
-  //Find email
+  // Encuentra el email
   User.findOne({ email: emailLowerCase }, (error, userStorage) => {
     if (error) {
       res.status(500).send({ msg: "Error del servidor" });
     } else if (!userStorage) {
       res.status(400).send({ msg: "Usuario no encontrado" });
     } else {
-      // Compare encrypted password
+      // Compara la contraseña encriptada
       bcrypt.compare(password, userStorage.password, (bcryptError, check) => {
         if (bcryptError) {
           res.status(500).send({ msg: "Error del servidor" });
@@ -66,9 +66,11 @@ function login(req, res) {
         } else if (!userStorage.active) {
           res.status(401).send({ msg: "Usuario no autorizado" });
         } else {
+          // Crea el token de acceso y devuelve el objeto User junto con el token
+          const accessToken = jwt.createAccessToken(userStorage);
           res.status(200).send({
-            access: jwt.createAccessToken(userStorage),
-            refresh: jwt.createRefreshToken(userStorage),
+            user: userStorage,
+            access: accessToken,
           });
         }
       });
