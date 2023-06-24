@@ -195,26 +195,6 @@ async function followThisUser(identity_user_id, user_id) {
   };
 }
 
-async function getCounters(req, res) {
-  let { user_id } = req.user;
-  if (req.params.id) {
-    user_id = req.params.id;
-  }
-
-  try {
-    const following = await Follow.countDocuments({ user: user_id }).exec();
-    const followed = await Follow.countDocuments({ followed: user_id }).exec();
-
-    const counters = { following, followed };
-
-    return res.status(200).send(counters);
-  } catch (error) {
-    return res
-      .status(400)
-      .send({ msg: "Error al obtener los contadores", error: error.message });
-  }
-}
-
 module.exports = {
   saveFollow,
   deleteFollow,
@@ -222,5 +202,4 @@ module.exports = {
   getFollowedUsers,
   getMyFollows,
   isFollowing,
-  getCounters,
 };

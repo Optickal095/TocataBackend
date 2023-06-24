@@ -1,5 +1,7 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
+const Follow = require("../models/follow");
+const Publication = require("../models/publication");
 const image = require("../utils/image");
 
 // getMe Function
@@ -120,6 +122,29 @@ async function deleteUser(req, res) {
   }
 }
 
+async function getCounters(req, res) {
+  let { user_id } = req.user;
+  if (req.params.id) {
+    user_id = req.params.id;
+  }
+
+  try {
+    const following = await Follow.countDocuments({ user: user_id }).exec();
+    const followed = await Follow.countDocuments({ followed: user_id }).exec();
+    const publications = await Publication.countDocuments({
+      user: user_id,
+    }).exec();
+
+    const counters = { following, followed, publications };
+
+    return res.status(200).send(counters);
+  } catch (error) {
+    return res
+      .status(400)
+      .send({ msg: "Error al obtener los contadores", error: error.message });
+  }
+}
+
 module.exports = {
   getMe,
   getUsers,
@@ -127,4 +152,5 @@ module.exports = {
   createUser,
   updateUser,
   deleteUser,
+  getCounters,
 };

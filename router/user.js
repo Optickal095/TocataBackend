@@ -16,5 +16,6 @@ api.patch(
   UserController.updateUser
 );
 api.delete("/user/:id", [md_auth.asureAuth], UserController.deleteUser);
+api.get("/counters/:id?", [md_auth.asureAuth], UserController.getCounters);
 
 module.exports = api;
