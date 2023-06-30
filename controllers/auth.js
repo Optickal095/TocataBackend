@@ -18,7 +18,7 @@ function register(req, res) {
     nick,
     email: email.toLowerCase(),
     role: "user",
-    active: false,
+    active: true,
   });
 
   // Password encryption

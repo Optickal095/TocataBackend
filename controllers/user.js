@@ -78,27 +78,23 @@ async function updateUser(req, res) {
   const { id } = req.params;
   const userData = req.body;
 
-  // Crypting Password
-  if (userData.password) {
-    const salt = bcrypt.genSaltSync(10);
-    const hashPassword = bcrypt.hashSync(userData.password, salt);
-    userData.password = hashPassword;
-  } else {
-    delete userData.password;
-  }
+  delete userData.password;
 
+  /*
   // Image
-  if (req.files.avatar) {
+  if (req.files && req.files.avatar) {
     const imagePath = image.getFilePath(req.files.avatar);
     userData.avatar = imagePath;
-  }
+  */
 
   // Update and Save User
-  User.findByIdAndUpdate({ _id: id }, userData, (error) => {
+  User.findByIdAndUpdate(id, userData, { new: true }, (error, userUpdated) => {
     if (error) {
-      res.status(400).send({ msg: "Error al actualizar el ususario" });
+      res.status(500).send({ msg: "Error al actualizar el ususario" });
+    } else if (!userUpdated) {
+      res.status(404).send({ msg: "No se ha podido actualizar el usuario" });
     } else {
-      res.status(200).send({ msg: "Actualización correcta" });
+      res.status(200).send({ user: userUpdated });
     }
   });
 }
