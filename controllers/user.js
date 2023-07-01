@@ -3,6 +3,7 @@ const User = require("../models/user");
 const Follow = require("../models/follow");
 const Publication = require("../models/publication");
 const image = require("../utils/image");
+const mongoosePaginate = require("mongoose-paginate");
 
 // getMe Function
 async function getMe(req, res) {
@@ -19,16 +20,46 @@ async function getMe(req, res) {
 
 // getUsers Function
 async function getUsers(req, res) {
-  const { active } = req.query;
-  let response = null;
+  try {
+    let page = parseInt(req.params.page);
+    const itemsPerPage = 5;
 
-  if (active === undefined) {
-    response = await User.find();
-  } else {
-    response = await User.find({ active });
+    const options = {
+      page,
+      limit: itemsPerPage,
+    };
+
+    const total = await User.countDocuments();
+
+    const totalPages = Math.ceil(total / itemsPerPage);
+
+    // Ajustar el número de página si es mayor al número total de páginas
+    if (page > totalPages) {
+      page = totalPages;
+    }
+
+    const result = await User.find()
+      .sort("_id")
+      .skip((page - 1) * itemsPerPage)
+      .limit(itemsPerPage)
+      .exec();
+
+    if (result.length === 0) {
+      throw new Error("No hay usuarios disponibles");
+    }
+
+    res.status(200).send({
+      users: result,
+      total,
+      pages: totalPages,
+      currentPage: page,
+    });
+  } catch (error) {
+    res.status(400).send({
+      msg: "Error al obtener los usuarios",
+      error: error.message,
+    });
   }
-
-  res.status(200).send(response);
 }
 
 //getUser Function
@@ -80,12 +111,11 @@ async function updateUser(req, res) {
 
   delete userData.password;
 
-  /*
   // Image
   if (req.files && req.files.avatar) {
     const imagePath = image.getFilePath(req.files.avatar);
     userData.avatar = imagePath;
-  */
+  }
 
   // Update and Save User
   User.findByIdAndUpdate(id, userData, { new: true }, (error, userUpdated) => {

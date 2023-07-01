@@ -4,6 +4,7 @@ const jwt = require("../utils/jwt");
 const user = require("../models/user");
 
 // Register Function
+// Register Function
 function register(req, res) {
   const { firstname, lastname, email, nick, password } = req.body;
 
@@ -19,6 +20,7 @@ function register(req, res) {
     email: email.toLowerCase(),
     role: "user",
     active: true,
+    avatar: "avatar/userAvatar.avif", // Ruta de la imagen predeterminada
   });
 
   // Password encryption
