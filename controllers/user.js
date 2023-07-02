@@ -20,45 +20,65 @@ async function getMe(req, res) {
 
 // getUsers Function
 async function getUsers(req, res) {
+  const { id } = req.params; // Utiliza el nombre correcto en req.params
+
+  let { page } = req.query; // Utiliza req.query para obtener el valor de page
+
+  if (!page || page < 1) {
+    page = 1;
+  }
+
+  const itemsPerPage = 5;
+
   try {
-    let page = parseInt(req.params.page);
-    const itemsPerPage = 5;
-
-    const options = {
-      page,
-      limit: itemsPerPage,
-    };
-
-    const total = await User.countDocuments();
-
-    const totalPages = Math.ceil(total / itemsPerPage);
-
-    // Ajustar el número de página si es mayor al número total de páginas
-    if (page > totalPages) {
-      page = totalPages;
-    }
-
-    const result = await User.find()
+    const users = await User.find()
       .sort("_id")
       .skip((page - 1) * itemsPerPage)
       .limit(itemsPerPage)
       .exec();
 
-    if (result.length === 0) {
-      throw new Error("No hay usuarios disponibles");
-    }
+    const total = await User.countDocuments();
 
-    res.status(200).send({
-      users: result,
-      total,
-      pages: totalPages,
-      currentPage: page,
-    });
+    if (users.length > 0) {
+      const value = await followUsersIds(req.user.user_id); // Utiliza el nombre correcto en req.user
+
+      res.status(200).send({
+        users,
+        users_following: value.following,
+        users_follow_me: value.followed,
+        total,
+        pages: Math.ceil(total / itemsPerPage),
+      });
+    } else {
+      res.status(404).send({ msg: "No hay usuarios disponibles" });
+    }
   } catch (error) {
-    res.status(400).send({
-      msg: "Error al obtener los usuarios",
-      error: error.message,
-    });
+    res.status(500).send({ msg: "Error en la petición" });
+  }
+}
+
+// Obtener los usuarios que siguen a un usuario específico
+async function followUsersIds(user_id) {
+  try {
+    const following = await Follow.find({ user: user_id })
+      .select("followed")
+      .exec();
+
+    const followed = await Follow.find({ followed: user_id })
+      .select("user")
+      .exec();
+
+    const followingIds = following.map((follow) => follow.followed);
+    const followedIds = followed.map((follow) => follow.user);
+
+    return {
+      following: followingIds,
+      followed: followedIds,
+    };
+  } catch (error) {
+    throw new Error(
+      "Error al obtener los IDs de los usuarios que sigues y los usuarios que te siguen"
+    );
   }
 }
 

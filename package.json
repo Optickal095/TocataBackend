@@ -21,6 +21,8 @@
     "moment-timezone": "^0.5.43",
     "mongoose": "6.6.1",
     "mongoose-paginate": "^5.0.3",
+    "mongoose-paginate-v2": "^1.7.1",
+    "mongoose-pagination": "^1.0.0",
     "nodemon": "^2.0.22"
   }
 }
