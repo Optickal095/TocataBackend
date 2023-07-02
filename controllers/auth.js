@@ -20,7 +20,6 @@ function register(req, res) {
     email: email.toLowerCase(),
     role: "user",
     active: true,
-    avatar: "avatar/userAvatar.avif", // Ruta de la imagen predeterminada
   });
 
   // Password encryption
