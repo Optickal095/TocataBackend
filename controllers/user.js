@@ -20,27 +20,22 @@ async function getMe(req, res) {
 
 // getUsers Function
 async function getUsers(req, res) {
-  const { id } = req.params; // Utiliza el nombre correcto en req.params
-
-  let { page } = req.query; // Utiliza req.query para obtener el valor de page
-
-  if (!page || page < 1) {
-    page = 1;
-  }
+  const { page } = req.params;
 
   const itemsPerPage = 5;
+  const skipItems = (page - 1) * itemsPerPage;
 
   try {
     const users = await User.find()
       .sort("_id")
-      .skip((page - 1) * itemsPerPage)
+      .skip(skipItems)
       .limit(itemsPerPage)
       .exec();
 
     const total = await User.countDocuments();
 
     if (users.length > 0) {
-      const value = await followUsersIds(req.user.user_id); // Utiliza el nombre correcto en req.user
+      const value = await followUsersIds(req.user.user_id);
 
       res.status(200).send({
         users,
