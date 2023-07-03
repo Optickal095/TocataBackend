@@ -43,7 +43,7 @@ function getPublications(req, res) {
     page = req.params.page;
   }
 
-  let itemsPerPage = 20;
+  let itemsPerPage = 5;
 
   Follow.find({ user: user_id })
     .populate("followed")
@@ -57,6 +57,7 @@ function getPublications(req, res) {
       follows.forEach((follow) => {
         follows_clean.push(follow.followed);
       });
+      follows_clean.push(user_id);
 
       Publication.find({ user: { $in: follows_clean } })
         .populate("user")
@@ -77,6 +78,7 @@ function getPublications(req, res) {
               total_items: publications.length,
               pages: Math.ceil(publications.length / itemsPerPage),
               page: page,
+              itemsPerPage: itemsPerPage,
               publications: paginatedPublications,
             });
           }
