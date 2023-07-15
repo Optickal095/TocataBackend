@@ -82,22 +82,52 @@ async function getUser(req, res) {
   const { id } = req.params;
 
   User.findById(id, (error, user) => {
-    if (error) {
-      res.status(500).send({ msg: "Error en la petición" });
-    } else if (!user) {
-      res.status(404).send({ msg: "El usuario no existe" });
-    } else {
-      Follow.findOne({ user: req.user.user_id, followed: id }).exec(
-        (error, follow) => {
-          if (error) {
-            res.status(500).send({ msg: "Error al comprobar el seguimiento" });
-          } else {
-            res.status(200).send({ user, follow });
-          }
-        }
-      );
-    }
+    if (error) return res.status(500).send({ msg: "Error en la petición" });
+
+    if (!user) return res.status(404).send({ msg: "El usuario no existe" });
+
+    followThisUser(req.user.user_id, id).then((value) => {
+      user.password = undefined;
+      return res.status(200).send({
+        user,
+        following: value.following,
+        followed: value.followed,
+      });
+    });
   });
+}
+
+async function followThisUser(identity_user_id, user_id) {
+  try {
+    var following = await Follow.findOne({
+      user: identity_user_id,
+      followed: user_id,
+    })
+      .exec()
+      .then((following) => {
+        return following;
+      })
+      .catch((err) => {
+        return handleerror(err);
+      });
+    var followed = await Follow.findOne({
+      user: user_id,
+      followed: identity_user_id,
+    })
+      .exec()
+      .then((followed) => {
+        return followed;
+      })
+      .catch((err) => {
+        return handleerror(err);
+      });
+    return {
+      following: following,
+      followed: followed,
+    };
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 // createUser Function
