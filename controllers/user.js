@@ -87,7 +87,15 @@ async function getUser(req, res) {
     } else if (!user) {
       res.status(404).send({ msg: "El usuario no existe" });
     } else {
-      res.status(200).send({ user });
+      Follow.findOne({ user: req.user.user_id, followed: id }).exec(
+        (error, follow) => {
+          if (error) {
+            res.status(500).send({ msg: "Error al comprobar el seguimiento" });
+          } else {
+            res.status(200).send({ user, follow });
+          }
+        }
+      );
     }
   });
 }
