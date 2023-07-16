@@ -17,6 +17,11 @@ api.get(
   PublicationController.getPublications
 );
 api.get(
+  "/publications-user/:user/:page?",
+  [md_auth.asureAuth],
+  PublicationController.getPublicationsUser
+);
+api.get(
   "/publication/:id",
   [md_auth.asureAuth],
   PublicationController.getPublication

@@ -86,6 +86,47 @@ function getPublications(req, res) {
     });
 }
 
+function getPublicationsUser(req, res) {
+  const { user_id } = req.user;
+  let page = 1;
+
+  if (req.params.page) {
+    page = req.params.page;
+  }
+
+  let user = req.user.user_id;
+  if (req.params.user) {
+    user = req.params.user;
+  }
+
+  let itemsPerPage = 5;
+
+  Publication.find({ user: user })
+    .populate("user")
+    .exec((error, publications) => {
+      if (error) {
+        res.status(500).send({ msg: "Error al devolver publicaciones" });
+      } else if (!publications || publications.length === 0) {
+        res.status(404).send({ msg: "No hay publicaciones" });
+      } else {
+        const randomizedPublications = shuffleArray(publications); // Orden aleatorio de las publicaciones
+        const paginatedPublications = paginateArray(
+          randomizedPublications,
+          page,
+          itemsPerPage
+        ); // Paginación de las publicaciones
+
+        res.status(200).send({
+          total_items: publications.length,
+          pages: Math.ceil(publications.length / itemsPerPage),
+          page: page,
+          itemsPerPage: itemsPerPage,
+          publications: paginatedPublications,
+        });
+      }
+    });
+}
+
 // Función para ordenar aleatoriamente un array (algoritmo de Fisher-Yates)
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -200,6 +241,7 @@ module.exports = {
   getPublications,
   getPublication,
   getMyPublications,
+  getPublicationsUser,
   deletePublication,
   getPublicationsCounter,
 };
