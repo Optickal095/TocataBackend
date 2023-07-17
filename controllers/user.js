@@ -4,6 +4,8 @@ const Follow = require("../models/follow");
 const Publication = require("../models/publication");
 const image = require("../utils/image");
 const mongoosePaginate = require("mongoose-paginate");
+const fs = require("fs");
+const path = require("path");
 
 // getMe Function
 async function getMe(req, res) {
@@ -182,6 +184,89 @@ async function updateUser(req, res) {
   });
 }
 
+//Upload image
+function uploadImage(req, res) {
+  const userData = req.body;
+  const { id } = req.params;
+  let imagePath = null;
+  let image_ext = null;
+
+  if (req.files && req.files.avatar) {
+    imagePath = image.getFilePath(req.files.avatar);
+    userData.avatar = imagePath;
+
+    let ext_split = imagePath.split(".");
+    image_ext = ext_split[ext_split.length - 1].toLowerCase();
+  } else {
+    return res.status(400).send({ msg: "No se han subido imágenes" });
+  }
+
+  if (id != req.user.user_id) {
+    return removeFilesOfUploads(
+      imagePath,
+      res,
+      "No tienes permiso para actualizar los datos de usuario"
+    );
+  }
+
+  if (image_ext !== "png" && image_ext !== "jpg" && image_ext !== "jpeg") {
+    return removeFilesOfUploads(imagePath, res, "Extensión no válida");
+  } else {
+    User.findByIdAndUpdate(
+      id,
+      { avatar: imagePath },
+      { new: true },
+      (error, userUpdated) => {
+        if (error) {
+          return res
+            .status(500)
+            .send({ msg: "Error al actualizar el usuario" });
+        } else if (!userUpdated) {
+          return res
+            .status(404)
+            .send({ msg: "No se ha podido actualizar el usuario" });
+        } else {
+          // Solo enviar una respuesta en caso de éxito (dentro del callback)
+          return res
+            .status(200)
+            .send({ msg: "Imagen subida correctamente", user: userUpdated });
+        }
+      }
+    );
+  }
+}
+
+function removeFilesOfUploads(imagePath, res, message) {
+  fs.stat(imagePath, (error, stats) => {
+    if (error) {
+      console.error("Error al obtener el estado del archivo:", error);
+      return res.status(500).send({ msg: "Error al eliminar la imagen" });
+    }
+
+    if (!stats.isFile()) {
+      // Si el archivo no es un archivo regular (por ejemplo, un directorio), devolvemos un error.
+      return res.status(400).send({ msg: "El archivo no es válido" });
+    }
+
+    const allowedExtensions = ["png", "jpg", "jpeg"];
+    const ext_split = imagePath.split(".");
+    const image_ext = ext_split[ext_split.length - 1].toLowerCase();
+
+    if (!allowedExtensions.includes(image_ext)) {
+      // Si la extensión del archivo no está en la lista de extensiones permitidas, devolvemos un error.
+      return res.status(400).send({ msg: "Extensión no válida" });
+    }
+
+    fs.unlink(imagePath, (error) => {
+      if (error) {
+        console.error("Error al eliminar la imagen:", error);
+        return res.status(500).send({ msg: "Error al eliminar la imagen" });
+      }
+      return res.status(200).send({ msg: message });
+    });
+  });
+}
+
 // deleteUser Function
 async function deleteUser(req, res) {
   try {
@@ -232,4 +317,5 @@ module.exports = {
   updateUser,
   deleteUser,
   getCounters,
+  uploadImage,
 };
