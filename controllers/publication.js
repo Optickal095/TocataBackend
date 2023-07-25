@@ -16,7 +16,7 @@ function savePublication(req, res) {
 
   const publication = new Publication({
     text,
-    file,
+    file, // Asignar la imagen solo si existe una
     created_at: moment().unix(),
     user: user_id,
   });
