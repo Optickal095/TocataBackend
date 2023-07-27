@@ -18,6 +18,7 @@ function register(req, res) {
     lastname,
     nick,
     email: email.toLowerCase(),
+    description,
     role: "user",
     active: true,
   });
