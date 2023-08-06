@@ -6,12 +6,15 @@ const image = require("../utils/image");
 function savePublication(req, res) {
   const { user_id } = req.user;
   const { text } = req.body;
-  let file = null;
 
   // Image
   if (req.files && req.files.file && text) {
     const imagePath = image.getFilePath(req.files.file);
     file = imagePath;
+  }
+
+  if (!text) {
+    return res.status(400).send({ msg: "Debes enviar texto!" });
   }
 
   const publication = new Publication({
@@ -20,10 +23,6 @@ function savePublication(req, res) {
     created_at: moment().unix(),
     user: user_id,
   });
-
-  if (!text) {
-    return res.status(400).send({ msg: "Debes enviar texto!" });
-  }
 
   publication.save((error, publicationStored) => {
     if (error) {
