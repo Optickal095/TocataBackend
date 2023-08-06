@@ -1,5 +1,6 @@
 const moment = require("moment");
 const Notice = require("../models/notice");
+const User = require("../models/user");
 
 function saveNotice(req, res) {
   const { user_id } = req.user;
@@ -40,6 +41,7 @@ function getNotices(req, res) {
 
   Notice.find()
     .sort("-created_at")
+    .populate("user") // Agrega esta línea para poblar los datos del usuario que publicó el aviso
     .exec((error, notices) => {
       if (error) {
         res.status(500).send({ msg: "Error al devolver avisos" });
