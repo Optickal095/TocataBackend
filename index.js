@@ -5,10 +5,10 @@ const {
   DB_PASSWORD,
   DB_HOST,
   IP_SERVER,
-  API_VERSION
+  API_VERSION,
 } = require("./constants");
 
-const PORT = process.env.POST || 3977;
+const PORT = 3000;
 
 mongoose.connect(
   `mongodb+srv://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/`,
