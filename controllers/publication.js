@@ -17,7 +17,7 @@ function savePublication(req, res) {
   const publication = new Publication({
     text,
     file,
-    created_at: new Date(),
+    created_at: moment().unix(),
     user: user_id,
   });
 

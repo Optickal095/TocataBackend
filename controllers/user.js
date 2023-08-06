@@ -186,6 +186,10 @@ async function getCounters(req, res) {
   }
 }
 
+function probarUser(req, res) {
+  console.log("Hola");
+}
+
 module.exports = {
   getMe,
   getUsers,
@@ -194,4 +198,5 @@ module.exports = {
   updateUser,
   deleteUser,
   getCounters,
+  probarUser,
 };
