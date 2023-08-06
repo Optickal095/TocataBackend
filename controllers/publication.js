@@ -2,16 +2,12 @@ const moment = require("moment");
 const Publication = require("../models/publication");
 const Follow = require("../models/follow");
 const image = require("../utils/image");
+const fs = require("fs");
+const path = require("path");
 
 function savePublication(req, res) {
   const { user_id } = req.user;
   const { text } = req.body;
-
-  // Image
-  if (req.files && req.files.file && text) {
-    const imagePath = image.getFilePath(req.files.file);
-    file = imagePath;
-  }
 
   if (!text) {
     return res.status(400).send({ msg: "Debes enviar texto!" });
@@ -19,7 +15,7 @@ function savePublication(req, res) {
 
   const publication = new Publication({
     text,
-    file, // Asignar la imagen solo si existe una
+    file: null,
     created_at: moment().unix(),
     user: user_id,
   });
@@ -215,7 +211,7 @@ function deletePublication(req, res) {
 }
 
 async function getPublicationsCounter(req, res) {
-  let { user_id } = req.user;
+  const { user_id } = req.user;
   if (req.params.id) {
     user_id = req.params.id;
   }
@@ -235,6 +231,76 @@ async function getPublicationsCounter(req, res) {
   }
 }
 
+function uploadImage(req, res) {
+  const { user_id } = req.user;
+  const publicationId = req.params.id;
+  console.log(req.files);
+
+  if (req.files) {
+    let file_path = req.files.file.path;
+    console.log(file_path);
+
+    let file_split = file_path.split("\\");
+    console.log(file_split);
+
+    let file_name = file_split[2];
+    console.log(file_name);
+
+    let ext_split = file_name.split(".");
+    console.log(ext_split);
+
+    let file_ext = ext_split[1];
+    console.log(file_ext);
+
+    if (
+      file_ext == "png" ||
+      file_ext == "jpg" ||
+      file_ext == "jpeg" ||
+      file_ext == "gif"
+    ) {
+      Publication.findOneAndUpdate(
+        { user: user_id, _id: publicationId },
+        { file: file_name }, // Actualizamos directamente el campo 'file' con el nombre de la imagen
+        { new: true },
+        (error, publicationUpdated) => {
+          if (error) {
+            return res.status(500).send({ msg: "Error en la petición" });
+          } else if (!publicationUpdated) {
+            return res
+              .status(404)
+              .send({ msg: "No se ha podido actualizar la publicación" });
+          } else {
+            return res.status(200).send({ publication: publicationUpdated });
+          }
+        }
+      );
+    } else {
+      return removeFilesOfUploads(res, file_path, "Extensión no válida");
+    }
+  } else {
+    return res.status(200).send({ msg: "No se han subido imágenes" });
+  }
+}
+
+function removeFilesOfUploads(res, file_path, message) {
+  fs.unlink(file_path, (error) => {
+    return res.status(200).send({ msg: message });
+  });
+}
+
+function getImageFile(req, res) {
+  const image_file = req.params.imageFile;
+  const path_file = "./uploads/publication/" + image_file;
+
+  fs.access(path_file, fs.constants.F_OK, (err) => {
+    if (err) {
+      res.status(404).send({ msg: "No existe la imagen..." });
+    } else {
+      res.sendFile(path.resolve(path_file));
+    }
+  });
+}
+
 module.exports = {
   savePublication,
   getPublications,
@@ -243,4 +309,6 @@ module.exports = {
   getPublicationsUser,
   deletePublication,
   getPublicationsCounter,
+  uploadImage,
+  getImageFile,
 };
