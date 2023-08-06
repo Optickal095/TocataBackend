@@ -16,10 +16,13 @@ const followRoutes = require("./router/follow");
 const publicationRoutes = require("./router/publication");
 const noticeRoutes = require("./router/notice");
 
+// Configure static folder
+app.use(express.static("uploads"));
+
 // Configure Header HTTP - CORS
 app.use(cors());
 
-// Configure Routing
+//  Configure Routing
 app.use(`/api/${API_VERSION}`, authRoutes);
 app.use(`/api/${API_VERSION}`, userRoutes);
 app.use(`/api/${API_VERSION}`, followRoutes);
