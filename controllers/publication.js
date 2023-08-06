@@ -236,7 +236,7 @@ function uploadImage(req, res) {
   const publicationId = req.params.id;
   console.log(req.files);
 
-  if (req.files) {
+  if (req.files && req.files.file) {
     let file_path = req.files.file.path;
     console.log(file_path);
 
@@ -278,7 +278,7 @@ function uploadImage(req, res) {
       return removeFilesOfUploads(res, file_path, "Extensión no válida");
     }
   } else {
-    return res.status(200).send({ msg: "No se han subido imágenes" });
+    return res.status(400).send({ msg: "No se han subido imágenes" });
   }
 }
 
