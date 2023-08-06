@@ -13,5 +13,10 @@ api.post("/user", [md_auth.asureAuth, md_upload], UserController.createUser);
 api.put("/user/:id", [md_auth.asureAuth, md_upload], UserController.updateUser);
 api.delete("/user/:id", [md_auth.asureAuth], UserController.deleteUser);
 api.get("/counters/:id?", [md_auth.asureAuth], UserController.getCounters);
+api.post(
+  "/upload-image-user/:id",
+  [md_auth.asureAuth, md_upload],
+  UserController.uploadImage
+);
 
 module.exports = api;

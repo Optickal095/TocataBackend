@@ -10,6 +10,7 @@ const UserSchema = mongoose.Schema({
     unique: true,
   },
   password: String,
+  description: String,
   role: String,
   active: Boolean,
   avatar: String,
