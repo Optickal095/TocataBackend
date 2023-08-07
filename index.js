@@ -15,7 +15,7 @@ mongoose.connect(
   (error) => {
     if (error) throw error;
 
-    app.listen(PORT, () => {
+    app.listen(PORT, "0.0.0.0", () => {
       console.log("##################");
       console.log("#### API REST ####");
       console.log("##################");

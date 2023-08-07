@@ -1,9 +1,10 @@
 const moment = require("moment");
 const Notice = require("../models/notice");
+const User = require("../models/user");
 
 function saveNotice(req, res) {
   const { user_id } = req.user;
-  const { title, text, datetime, region, city } = req.body;
+  const { title, text, datetime, region, city, phone, email } = req.body;
 
   const notice = new Notice({
     title,
@@ -13,6 +14,8 @@ function saveNotice(req, res) {
     city,
     created_at: moment().unix(),
     user: user_id,
+    phone,
+    email,
   });
 
   if (!title) {
@@ -36,10 +39,11 @@ function getNotices(req, res) {
     page = req.params.page;
   }
 
-  let itemsPerPage = 5;
+  let itemsPerPage = 6;
 
   Notice.find()
     .sort("-created_at")
+    .populate("user") // Agrega esta línea para poblar los datos del usuario que publicó el aviso
     .exec((error, notices) => {
       if (error) {
         res.status(500).send({ msg: "Error al devolver avisos" });

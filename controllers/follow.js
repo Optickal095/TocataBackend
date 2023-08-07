@@ -79,12 +79,40 @@ async function getFollowingUsers(req, res) {
       throw new Error("No sigues a ningún usuario");
     }
 
-    res.status(200).send({ follows: result, total, currentPage: page });
+    const followIds = await followUsersIds(user_id); // Obtener los IDs de seguidores y seguidos
+
+    res
+      .status(200)
+      .send({ follows: result, total, currentPage: page, followIds });
   } catch (error) {
     res.status(400).send({
       msg: "Error al obtener los usuarios que sigues",
       error: error.message,
     });
+  }
+}
+
+async function followUsersIds(user_id) {
+  try {
+    const following = await Follow.find({ user: user_id })
+      .select("followed")
+      .exec();
+
+    const followed = await Follow.find({ followed: user_id })
+      .select("user")
+      .exec();
+
+    const followingIds = following.map((follow) => follow.followed);
+    const followedIds = followed.map((follow) => follow.user);
+
+    return {
+      following: followingIds,
+      followed: followedIds,
+    };
+  } catch (error) {
+    throw new Error(
+      "Error al obtener los IDs de los usuarios que sigues y los usuarios que te siguen"
+    );
   }
 }
 

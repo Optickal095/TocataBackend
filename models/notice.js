@@ -9,6 +9,8 @@ const NoticeSchema = mongoose.Schema({
   region: String,
   city: String,
   user: { type: mongoose.Schema.ObjectId, ref: "User" },
+  phone: String,
+  email: String,
 });
 
 NoticeSchema.plugin(mongoosePaginate);
