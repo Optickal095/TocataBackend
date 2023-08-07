@@ -17,6 +17,11 @@ api.get(
   PublicationController.getPublications
 );
 api.get(
+  "/publications-user/:user/:page?",
+  [md_auth.asureAuth],
+  PublicationController.getPublicationsUser
+);
+api.get(
   "/publication/:id",
   [md_auth.asureAuth],
   PublicationController.getPublication
@@ -36,5 +41,11 @@ api.get(
   [md_auth.asureAuth],
   PublicationController.getPublicationsCounter
 );
+api.post(
+  "/upload-image-pub/:id",
+  [md_auth.asureAuth, md_upload],
+  PublicationController.uploadImage
+);
+api.get("/get-image-pub/:imageFile", PublicationController.getImageFile);
 
 module.exports = api;
