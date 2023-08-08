@@ -6,10 +6,12 @@ function saveNotice(req, res) {
   const { user_id } = req.user;
   const { title, text, datetime, region, city, phone, email } = req.body;
 
+  const unixDate = moment(datetime, "DD/MM/YYYY HH:mm").unix();
+
   const notice = new Notice({
     title,
     text,
-    date: moment(datetime, "DD/MM/YYYY HH:mm").unix(),
+    date: unixDate,
     region,
     city,
     created_at: moment().unix(),
