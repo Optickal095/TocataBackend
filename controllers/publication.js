@@ -98,38 +98,28 @@ function getPublicationsUser(req, res) {
 
   Publication.find({ user: user })
     .populate("user")
+    .sort({ created_at: -1 })
     .exec((error, publications) => {
       if (error) {
         res.status(500).send({ msg: "Error al devolver publicaciones" });
       } else if (!publications || publications.length === 0) {
         res.status(404).send({ msg: "No hay publicaciones" });
       } else {
-        const randomizedPublications = shuffleArray(publications);
-
         const paginatedPublications = paginateArray(
-          randomizedPublications,
+          publications,
           page,
           itemsPerPage
         );
 
         res.status(200).send({
-          total_items: randomizedPublications.length,
-          pages: Math.ceil(randomizedPublications.length / itemsPerPage),
+          total_items: publications.length,
+          pages: Math.ceil(publications.length / itemsPerPage),
           page: page,
           itemsPerPage: itemsPerPage,
           publications: paginatedPublications,
         });
       }
     });
-}
-
-// Función para ordenar aleatoriamente un array (algoritmo de Fisher-Yates)
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
 }
 
 // Función para paginar un array
