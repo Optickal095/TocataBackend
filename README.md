@@ -26,53 +26,55 @@ Para configurar el servidor de producción se deben seguir los siguientes pasos 
 1. Iniciar el modo root e ingresar las credenciales de administrador del servidor
 
 ```bash
-	sudo su
+sudo su
 ```
 
 2. Actualizar sistema operativo
 
-````bash
-	apt-get update
-	```
-
-3) Instalar git para clonar repositorio
 ```bash
-	apt-get install git
-	```
+apt-get update
+```
 
-4) Instalar nvm para instalar NodeJs
+3. Instalar git para clonar repositorio
+
 ```bash
-	curl --silent -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.2/install.sh | bash
-````
+apt-get install git
+```
+
+4. Instalar nvm para instalar NodeJs
+
+```bash
+curl --silent -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.2/install.sh | bash
+```
 
 5. Reiniciar bash para utilizar comandos NVM
 
 ```bash
-	exec bash
+exec bash
 ```
 
 6. Instalar NodeJS versión 18.15.0
 
 ```bash
-	nvm install 18.15.0
+nvm install 18.15.0
 ```
 
 7. Cambiar alias de NodeJS
 
 ```bash
-	nvm alias default 16.15.0
+nvm alias default 16.15.0
 ```
 
 8. Cambiar versión de NodeJS
 
 ```bash
-	nvm use default
+nvm use default
 ```
 
 9. instalar yarn para luego instalar dependencias del proyecto
 
 ```bash
-	npm install -g yarn
+npm install -g yarn
 ```
 
 ### **Clonación del repositorio**
@@ -84,13 +86,13 @@ _Nota: se debe clonar un repositorio en cada servidor, de modo que tanto backend
 #### Backend
 
 ```bash
-	git clone -b dev https://github.com/Optickal095/TocataBackend.git
+git clone -b dev https://github.com/Optickal095/TocataBackend.git
 ```
 
 #### Frontend
 
 ```bash
-	git clone -b dev https://github.com/Optickal095/TocataFrontend.git
+git clone -b dev https://github.com/Optickal095/TocataFrontend.git
 ```
 
 ### **Instalar dependencias del proyecto**
@@ -100,19 +102,19 @@ _Nota: se debe clonar un repositorio en cada servidor, de modo que tanto backend
 Una vez clonado el repositorio, se deberá ingresar al directorio del proyecto
 
 ```bash
-	cd TocataBackend
+cd TocataBackend
 ```
 
 Instalar dependencias del proyecto
 
 ```bash
-	yarn install
+yarn install
 ```
 
 Para ejecutar el proyecto
 
 ```bash
-	yarn dev
+yarn dev
 ```
 
 #### Frontend
@@ -120,24 +122,26 @@ Para ejecutar el proyecto
 Una vez clonado el repositorio, se deberá ingresar al directorio del proyecto
 
 ```bash
-	cd TocataFrontend
+cd TocataFrontend
 ```
 
 Instalar dependencias del proyecto
 
 ```bash
-	npm install
+npm install
 ```
 
 Para ejecutar el proyecto
 
 ```bash
-	npm run start
+npm run start
 ```
 
 Para visualizar el frontend se debe dirigir a la siguiente ruta
 
-    http://146.83.198.35:1403/
+```bash
+http://146.83.198.35:1403/
+```
 
 ### **Credenciales de acceso**
 
