@@ -237,20 +237,8 @@ function uploadImage(req, res) {
   console.log(req.files);
 
   if (req.files && req.files.file) {
-    let file_path = req.files.file.path;
-    console.log(file_path);
-
-    let file_split = file_path.split("\\");
-    console.log(file_split);
-
-    let file_name = file_split[2];
-    console.log(file_name);
-
-    let ext_split = file_name.split(".");
-    console.log(ext_split);
-
-    let file_ext = ext_split[1];
-    console.log(file_ext);
+    const imagePath = image.getFilePath(req.files.avatar);
+    userData.avatar = imagePath;
 
     if (
       file_ext == "png" ||
