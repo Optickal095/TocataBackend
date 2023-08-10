@@ -15,7 +15,7 @@ El proyecto "Tocata" es una aplicación web desarrollado con las siguientes tecn
 - Yarn
 - NPM
 
-# **Configuración de Ejecución **
+# **Configuración de Ejecución**
 
 ### **Servidor de producción**
 
