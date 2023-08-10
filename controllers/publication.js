@@ -104,16 +104,17 @@ function getPublicationsUser(req, res) {
       } else if (!publications || publications.length === 0) {
         res.status(404).send({ msg: "No hay publicaciones" });
       } else {
-        const randomizedPublications = shuffleArray(publications); // Orden aleatorio de las publicaciones
+        const randomizedPublications = shuffleArray(publications);
+
         const paginatedPublications = paginateArray(
           randomizedPublications,
           page,
           itemsPerPage
-        ); // Paginación de las publicaciones
+        );
 
         res.status(200).send({
-          total_items: publications.length,
-          pages: Math.ceil(publications.length / itemsPerPage),
+          total_items: randomizedPublications.length,
+          pages: Math.ceil(randomizedPublications.length / itemsPerPage),
           page: page,
           itemsPerPage: itemsPerPage,
           publications: paginatedPublications,
