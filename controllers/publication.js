@@ -56,6 +56,7 @@ function getPublications(req, res) {
 
       Publication.find({ user: { $in: follows_clean } })
         .populate("user")
+        .sort({ created_at: -1 })
         .exec((error, publications) => {
           if (error) {
             res.status(500).send({ msg: "Error al devolver publicaciones" });
@@ -66,7 +67,7 @@ function getPublications(req, res) {
               publications,
               page,
               itemsPerPage
-            ); // Paginación de las publicaciones
+            );
 
             res.status(200).send({
               total_items: publications.length,
@@ -97,6 +98,7 @@ function getPublicationsUser(req, res) {
 
   Publication.find({ user: user })
     .populate("user")
+    .sort({ created_at: -1 })
     .exec((error, publications) => {
       if (error) {
         res.status(500).send({ msg: "Error al devolver publicaciones" });
