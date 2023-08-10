@@ -56,18 +56,18 @@ function getPublications(req, res) {
 
       Publication.find({ user: { $in: follows_clean } })
         .populate("user")
+        .sort({ created_at: -1 })
         .exec((error, publications) => {
           if (error) {
             res.status(500).send({ msg: "Error al devolver publicaciones" });
           } else if (!publications || publications.length === 0) {
             res.status(404).send({ msg: "No hay publicaciones" });
           } else {
-            const randomizedPublications = shuffleArray(publications); // Orden aleatorio de las publicaciones
             const paginatedPublications = paginateArray(
-              randomizedPublications,
+              publications,
               page,
               itemsPerPage
-            ); // Paginación de las publicaciones
+            );
 
             res.status(200).send({
               total_items: publications.length,
@@ -98,15 +98,15 @@ function getPublicationsUser(req, res) {
 
   Publication.find({ user: user })
     .populate("user")
+    .sort({ created_at: -1 })
     .exec((error, publications) => {
       if (error) {
         res.status(500).send({ msg: "Error al devolver publicaciones" });
       } else if (!publications || publications.length === 0) {
         res.status(404).send({ msg: "No hay publicaciones" });
       } else {
-        const randomizedPublications = shuffleArray(publications); // Orden aleatorio de las publicaciones
         const paginatedPublications = paginateArray(
-          randomizedPublications,
+          publications,
           page,
           itemsPerPage
         ); // Paginación de las publicaciones
@@ -120,15 +120,6 @@ function getPublicationsUser(req, res) {
         });
       }
     });
-}
-
-// Función para ordenar aleatoriamente un array (algoritmo de Fisher-Yates)
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
 }
 
 // Función para paginar un array
@@ -240,7 +231,7 @@ function uploadImage(req, res) {
     let file_path = req.files.file.path;
     console.log(file_path);
 
-    let file_split = file_path.split("\\");
+    let file_split = file_path.split("/");
     console.log(file_split);
 
     let file_name = file_split[2];
