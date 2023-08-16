@@ -3,7 +3,7 @@ const DB_PASSWORD = "admin123456";
 const DB_HOST = "tocata.jmeuact.mongodb.net";
 
 const API_VERSION = "v1";
-const IP_SERVER = "localhost";
+const IP_SERVER = "146.83.198.35";
 
 const JWT_SECRET_KEY = "LYYWbTfkDK7IqmxmCLGEEDSC8yUrX-GKuU2dcEiYl";
 
