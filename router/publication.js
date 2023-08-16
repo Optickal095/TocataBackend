@@ -4,6 +4,7 @@ const PublicationController = require("../controllers/publication");
 const md_auth = require("../middlewares/authenticated");
 
 const md_upload = multiparty({ uploadDir: "./uploads/publication" });
+const md_upload_audio = multiparty({ uploadDir: "./uploads/audio" });
 const api = express.Router();
 
 api.post(
@@ -47,5 +48,15 @@ api.post(
   PublicationController.uploadImage
 );
 api.get("/get-image-pub/:imageFile", PublicationController.getImageFile);
+
+api.get("/allpublications/:page?", PublicationController.getAllPublications);
+
+api.post(
+  "/upload-audio-pub/:id",
+  [md_auth.asureAuth, md_upload_audio],
+  PublicationController.uploadAudio
+);
+
+api.get("/get-audio-pub/:audioFile", PublicationController.getAudioFile);
 
 module.exports = api;

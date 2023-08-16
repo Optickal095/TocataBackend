@@ -93,27 +93,43 @@ async function getFollowingUsers(req, res) {
 }
 
 async function followUsersIds(user_id) {
-  try {
-    const following = await Follow.find({ user: user_id })
-      .select("followed")
-      .exec();
+  var following = await Follow.find({ user: user_id })
+    .select({ _id: 0, __uv: 0, user: 0 })
+    .exec()
+    .then((follows) => {
+      var follows_clean = [];
 
-    const followed = await Follow.find({ followed: user_id })
-      .select("user")
-      .exec();
+      follows.forEach((follow) => {
+        follows_clean.push(follow.followed);
+      });
 
-    const followingIds = following.map((follow) => follow.followed);
-    const followedIds = followed.map((follow) => follow.user);
+      return follows_clean;
+    })
+    .catch((err) => {
+      return handleerror(err);
+    });
 
-    return {
-      following: followingIds,
-      followed: followedIds,
-    };
-  } catch (error) {
-    throw new Error(
-      "Error al obtener los IDs de los usuarios que sigues y los usuarios que te siguen"
-    );
-  }
+  var followed = await Follow.find({ followed: user_id })
+    .select({ _id: 0, __uv: 0, followed: 0 })
+    .exec()
+    .then((follows) => {
+      var follows_clean = [];
+
+      follows.forEach((follow) => {
+        follows_clean.push(follow.user);
+      });
+
+      return follows_clean;
+    })
+    .catch((err) => {
+      return handleerror(err);
+    });
+
+  return {
+    following: following,
+
+    followed: followed,
+  };
 }
 
 async function getFollowedUsers(req, res) {

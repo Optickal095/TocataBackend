@@ -16,6 +16,7 @@ function savePublication(req, res) {
   const publication = new Publication({
     text,
     file: null,
+    audio: null,
     created_at: moment().unix(),
     user: user_id,
   });
@@ -231,7 +232,7 @@ function uploadImage(req, res) {
     let file_path = req.files.file.path;
     console.log(file_path);
 
-    let file_split = file_path.split("/");
+    let file_split = file_path.split("\\");
     console.log(file_split);
 
     let file_name = file_split[2];
@@ -273,6 +274,54 @@ function uploadImage(req, res) {
   }
 }
 
+function uploadAudio(req, res) {
+  const { user_id } = req.user;
+  const publicationId = req.params.id;
+  console.log(req.files);
+
+  if (req.files && req.files.audio) {
+    let audio_path = req.files.audio.path;
+    console.log(audio_path);
+
+    let audio_split = audio_path.split("\\");
+    console.log(audio_split);
+
+    let audio_name = audio_split[2];
+    console.log(audio_name);
+
+    let ext_split = audio_name.split(".");
+    console.log(ext_split);
+
+    let audio_ext = ext_split[1];
+    console.log(audio_ext);
+
+    if (audio_ext === "mp3" || audio_ext === "ogg" || audio_ext === "wav") {
+      Publication.findOneAndUpdate(
+        { user: user_id, _id: publicationId },
+        { audio: audio_name },
+        { new: true },
+        (error, publicationUpdated) => {
+          if (error) {
+            return res.status(500).send({ msg: "Error en la petición" });
+          } else if (!publicationUpdated) {
+            return res
+              .status(404)
+              .send({ msg: "No se ha podido actualizar la publicación" });
+          } else {
+            return res.status(200).send({ publication: publicationUpdated });
+          }
+        }
+      );
+    } else {
+      return removeFilesOfUploads(res, audio_path, "Extensión no válida");
+    }
+  } else {
+    return res
+      .status(400)
+      .send({ msg: "No se ha subido ningún archivo de audio" });
+  }
+}
+
 function removeFilesOfUploads(res, file_path, message) {
   fs.unlink(file_path, (error) => {
     return res.status(200).send({ msg: message });
@@ -292,6 +341,59 @@ function getImageFile(req, res) {
   });
 }
 
+function getAudioFile(req, res) {
+  const audioFile = req.params.audioFile;
+  const pathToFile = "./uploads/audio/" + audioFile;
+
+  fs.access(pathToFile, fs.constants.F_OK, (err) => {
+    if (err) {
+      res.status(404).send({ msg: "No existe el archivo de audio..." });
+    } else {
+      res.sendFile(path.resolve(pathToFile));
+    }
+  });
+}
+
+async function getAllPublications(req, res) {
+  const page = parseInt(req.query.page) || 1;
+  const itemsPerPage = 20;
+
+  try {
+    const totalCount = await Publication.countDocuments();
+    const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+    const publications = await Publication.aggregate([
+      { $sample: { size: itemsPerPage } }, // Orden aleatorio
+      {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+    ]);
+
+    if (publications.length === 0) {
+      return res.status(404).send({ msg: "No hay publicaciones" });
+    }
+
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = page * itemsPerPage;
+    const paginatedPublications = publications.slice(startIndex, endIndex);
+
+    return res.status(200).send({
+      totalItems: totalCount,
+      totalPages,
+      currentPage: page,
+      publications: paginatedPublications,
+    });
+  } catch (error) {
+    return res.status(500).send({ msg: "Error al obtener publicaciones" });
+  }
+}
+
 module.exports = {
   savePublication,
   getPublications,
@@ -302,4 +404,7 @@ module.exports = {
   getPublicationsCounter,
   uploadImage,
   getImageFile,
+  getAllPublications,
+  uploadAudio,
+  getAudioFile,
 };
