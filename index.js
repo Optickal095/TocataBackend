@@ -8,7 +8,7 @@ const {
   API_VERSION,
 } = require("./constants");
 
-const PORT = 3977;
+const PORT = 3000;
 
 mongoose.connect(
   `mongodb+srv://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/`,
