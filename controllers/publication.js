@@ -232,7 +232,7 @@ function uploadImage(req, res) {
     let file_path = req.files.file.path;
     console.log(file_path);
 
-    let file_split = file_path.split("\\");
+    let file_split = file_path.split("/");
     console.log(file_split);
 
     let file_name = file_split[2];
@@ -252,7 +252,7 @@ function uploadImage(req, res) {
     ) {
       Publication.findOneAndUpdate(
         { user: user_id, _id: publicationId },
-        { file: file_name }, // Actualizamos directamente el campo 'file' con el nombre de la imagen
+        { file: file_name },
         { new: true },
         (error, publicationUpdated) => {
           if (error) {
@@ -283,7 +283,7 @@ function uploadAudio(req, res) {
     let audio_path = req.files.audio.path;
     console.log(audio_path);
 
-    let audio_split = audio_path.split("\\");
+    let audio_split = audio_path.split("/");
     console.log(audio_split);
 
     let audio_name = audio_split[2];
