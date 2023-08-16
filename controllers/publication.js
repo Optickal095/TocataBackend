@@ -317,7 +317,6 @@ async function getAllPublications(req, res) {
       return res.status(404).send({ msg: "No hay publicaciones" });
     }
 
-    // Implementa una lógica de paginación manual
     const startIndex = (page - 1) * itemsPerPage;
     const endIndex = page * itemsPerPage;
     const paginatedPublications = publications.slice(startIndex, endIndex);
