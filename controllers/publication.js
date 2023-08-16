@@ -292,6 +292,47 @@ function getImageFile(req, res) {
   });
 }
 
+async function getAllPublications(req, res) {
+  const page = parseInt(req.query.page) || 1;
+  const itemsPerPage = 20;
+
+  try {
+    const totalCount = await Publication.countDocuments();
+    const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+    const publications = await Publication.aggregate([
+      { $sample: { size: itemsPerPage } }, // Orden aleatorio
+      {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+    ]);
+
+    if (publications.length === 0) {
+      return res.status(404).send({ msg: "No hay publicaciones" });
+    }
+
+    // Implementa una lógica de paginación manual
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = page * itemsPerPage;
+    const paginatedPublications = publications.slice(startIndex, endIndex);
+
+    return res.status(200).send({
+      totalItems: totalCount,
+      totalPages,
+      currentPage: page,
+      publications: paginatedPublications,
+    });
+  } catch (error) {
+    return res.status(500).send({ msg: "Error al obtener publicaciones" });
+  }
+}
+
 module.exports = {
   savePublication,
   getPublications,
@@ -302,4 +343,5 @@ module.exports = {
   getPublicationsCounter,
   uploadImage,
   getImageFile,
+  getAllPublications,
 };

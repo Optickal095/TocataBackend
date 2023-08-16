@@ -48,4 +48,6 @@ api.post(
 );
 api.get("/get-image-pub/:imageFile", PublicationController.getImageFile);
 
+api.get("/allpublications/:page?", PublicationController.getAllPublications);
+
 module.exports = api;
